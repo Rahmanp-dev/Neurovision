@@ -27,19 +27,22 @@ export default function LoginPage() {
         setIsLoading(true);
         try {
             const api = (await import("@/lib/api")).default;
-            const formData = new FormData();
-            formData.append('username', data.email);
-            formData.append('password', data.password);
 
-            const response = await api.post('/auth/token', formData, {
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            // Send JSON payload to new Next.js internal API
+            const response = await api.post('/auth/login', {
+                email: data.email,
+                password: data.password
             });
 
             localStorage.setItem('token', response.data.access_token);
+            // Optional: Store user info if needed
+            // localStorage.setItem('user', JSON.stringify(response.data.user));
+
             router.push('/dashboard/chat');
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert("Login Failed. Please check your credentials.");
+            const msg = error.response?.data?.detail || "Login Failed. Please check your credentials.";
+            alert(msg);
         } finally {
             setIsLoading(false);
         }
